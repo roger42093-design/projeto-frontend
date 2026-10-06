@@ -23,6 +23,8 @@ const firebaseConfig = {
 
 // Evita reinicializar o app em hot-reload do Vite
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+console.log("API Key atual:", firebaseConfig.apiKey);
+
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
