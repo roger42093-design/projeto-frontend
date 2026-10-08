@@ -1,15 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
-import { ErrorBoundary } from './components/ErrorBoundary';
 import { api } from './services/api';
 import { LoginPage } from './pages/login/LoginPage';
 import { OAuth2RedirectHandler } from './pages/login/OAuth2RedirectHandler';
@@ -25,52 +17,34 @@ import { CandidatePage } from './pages/candidate/CandidatePage';
 import { FileText, List, ArrowLeft } from 'lucide-react';
 import ChamadosPage from './pages/chamados/ChamadosPage';
 
-// Cada página do portal tem a sua própria URL (ex.: localhost:3000/helpdesk),
-// então dá para digitar o endereço, favoritar, recarregar e usar o botão
-// "voltar" do navegador.
-const PAGE_PATHS = {
-  home: '/',
-  helpdesk: '/helpdesk',
-  approver: '/aprovador',
-  support: '/suporte',
-  management: '/gestao',
-  webmail: '/webmail',
-  candidato: '/candidato',
-};
-const PATH_PAGES = Object.fromEntries(
-  Object.entries(PAGE_PATHS).map(([page, path]) => [path, page]),
-);
-
-// O backend pode devolver a lista de chamados simples ou paginada
-// ({ itens, totalItens, totalPaginas } - mesmo formato usado em /chamados).
-// As telas esperam sempre uma lista, então normalizamos aqui.
-function extractTickets(data) {
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.itens)) return data.itens;
-  if (Array.isArray(data?.content)) return data.content;
-  return [];
-}
-
-// Conteúdo do HelpTec depois do login. Fica atrás do PrivateRoute - o
-// usuário autenticado vem do AuthContext (JWT emitido pelo backend), não
-// mais de um e-mail digitado à mão.
+// Componente principal interno, protegido pelas rotas privadas
 function HelpTecApp() {
   const { user, logout } = useAuth();
   const userEmail = user?.email;
   const [userType, setUserType] = useState('funcionario');
-  const location = useLocation();
-  const navigate = useNavigate();
-  const pathname = location.pathname.replace(/\/+$/, '') || '/';
-  const currentPage = PATH_PAGES[pathname];
-  const setCurrentPage = (page) => navigate(PAGE_PATHS[page] ?? '/');
+  const [currentPage, setCurrentPage] = useState('home');
   const [activeTab, setActiveTab] = useState('new');
+  
+  // 1. Estado da Fonte de Verdade Remota (Backend API)
   const [tickets, setTickets] = useState([]);
 
-  // Chamados agora vêm do backend (ChamadoController), não de estado local.
+  // 2. Estado da Fonte de Verdade Local (Rascunhos no Navegador)
+  // Inicialização Lazy: só executa a leitura do localStorage na montagem inicial
+  const [chamadosPendentes, setChamadosPendentes] = useState(() => {
+    const salvos = localStorage.getItem('@helptec-pendentes');
+    return salvos ? JSON.parse(salvos) : [];
+  });
+
+  // 3. Efeito Colateral: Sincroniza a memória local com o disco (localStorage)
+  useEffect(() => {
+    localStorage.setItem('@helptec-pendentes', JSON.stringify(chamadosPendentes));
+  }, [chamadosPendentes]);
+
+  // Carrega os chamados oficiais da API ao abrir a aplicação
   useEffect(() => {
     api
       .get('/api/chamados')
-      .then((res) => setTickets(extractTickets(res.data)))
+      .then((res) => setTickets(res.data))
       .catch((err) => console.error('Falha ao carregar chamados:', err));
   }, []);
 
@@ -79,7 +53,6 @@ function HelpTecApp() {
     setCurrentPage('home');
   };
 
-  // Navegação central usada pelo menu, disponível em qualquer página
   const handleNavigate = (itemId) => {
     if (itemId === 'portal') setCurrentPage('home');
     else if (itemId === 'helpdesk') setCurrentPage('helpdesk');
@@ -90,14 +63,54 @@ function HelpTecApp() {
     else if (itemId === 'candidato') setCurrentPage('candidato');
   };
 
+  // Lógica de Rascunho: Salva localmente com propriedades de segurança
   const handleAddTicket = (ticket) => {
+    // Fallback de segurança para garantir a geração de ID em redes sem HTTPS
+    const geradorId = window.crypto && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : Date.now().toString();
+
+    const novoPendente = {
+      ...ticket,
+      id_local: geradorId,
+      id_chamado: geradorId, // Previne quebra de chave (key) no map do TicketList
+      status: 'Pendente',    // Previne erros no mapa de cores
+      data_abertura: new Date().toISOString(), 
+      isPendente: true       // Flag vital para a renderização condicional
+    };
+    
+    // Adiciona o rascunho no início da lista local
+    setChamadosPendentes((prev) => [novoPendente, ...prev]);
+    setActiveTab('list');
+  };
+
+  // Lógica de Confirmação: Envia para a API e limpa o rascunho
+  const handleConfirmarPendente = (chamadoLocal) => {
+    // Desestruturação (Rest Operator) para remover dados provisórios
+    const { 
+      id_local, 
+      isPendente, 
+      id_chamado, 
+      status, 
+      data_abertura, 
+      ...dadosParaAPI 
+    } = chamadoLocal;
+
     api
-      .post('/api/chamados', ticket)
+      .post('/api/chamados', dadosParaAPI)
       .then((res) => {
-        setTickets((prev) => [res.data, ...prev]);
-        setActiveTab('list');
+        setTickets((prev) => [res.data, ...prev]); // Adiciona aos oficiais
+        handleDeletarPendente(id_local);           // Remove dos locais
       })
-      .catch((err) => console.error('Falha ao abrir chamado:', err));
+      .catch((err) => {
+        console.error('Falha ao confirmar chamado no servidor:', err);
+        alert('Ocorreu um erro ao comunicar com o servidor.');
+      });
+  };
+
+  // Lógica de Exclusão: Apaga o rascunho sem contactar o servidor
+  const handleDeletarPendente = (id_local) => {
+    setChamadosPendentes((prev) => prev.filter(t => t.id_local !== id_local));
   };
 
   const handleUpdateTicket = (id, updates) => {
@@ -111,92 +124,29 @@ function HelpTecApp() {
       .catch((err) => console.error('Falha ao atualizar chamado:', err));
   };
 
-  // Endereço que não existe no portal: volta para a página inicial.
-  if (!currentPage) {
-    return <Navigate to="/" replace />;
-  }
-
+  // Router interno baseado em estado
   if (currentPage === 'home') {
-    return (
-      <HomePage
-        userEmail={userEmail}
-        onLogout={handleLogout}
-        userType={userType}
-        onUserTypeChange={setUserType}
-        onNavigate={handleNavigate}
-        onNavigateToHelpDesk={() => setCurrentPage('helpdesk')}
-      />
-    );
+    return <HomePage userEmail={userEmail} onLogout={handleLogout} userType={userType} onUserTypeChange={setUserType} onNavigate={handleNavigate} onNavigateToHelpDesk={() => setCurrentPage('helpdesk')} />;
   }
   if (currentPage === 'approver') {
-    return (
-      <ApproverDashboard
-        tickets={tickets}
-        onUpdateTicket={handleUpdateTicket}
-        onBack={() => setCurrentPage('home')}
-        userEmail={userEmail}
-        onLogout={handleLogout}
-        userType={userType}
-        onUserTypeChange={setUserType}
-        onNavigate={handleNavigate}
-      />
-    );
+    return <ApproverDashboard tickets={tickets} onUpdateTicket={handleUpdateTicket} onBack={() => setCurrentPage('home')} userEmail={userEmail} onLogout={handleLogout} userType={userType} onUserTypeChange={setUserType} onNavigate={handleNavigate} />;
   }
   if (currentPage === 'support') {
-    return (
-      <SupportDashboard
-        tickets={tickets}
-        onUpdateTicket={handleUpdateTicket}
-        onBack={() => setCurrentPage('home')}
-        userEmail={userEmail}
-        onLogout={handleLogout}
-        userType={userType}
-        onUserTypeChange={setUserType}
-        onNavigate={handleNavigate}
-      />
-    );
+    return <SupportDashboard tickets={tickets} onUpdateTicket={handleUpdateTicket} onBack={() => setCurrentPage('home')} userEmail={userEmail} onLogout={handleLogout} userType={userType} onUserTypeChange={setUserType} onNavigate={handleNavigate} />;
   }
   if (currentPage === 'management') {
-    return (
-      <ManagementPortal
-        tickets={tickets}
-        onUpdateTicket={handleUpdateTicket}
-        onBack={() => setCurrentPage('home')}
-        userEmail={userEmail}
-        onLogout={handleLogout}
-        userType={userType}
-        onUserTypeChange={setUserType}
-        onNavigate={handleNavigate}
-      />
-    );
+    return <ManagementPortal tickets={tickets} onUpdateTicket={handleUpdateTicket} onBack={() => setCurrentPage('home')} userEmail={userEmail} onLogout={handleLogout} userType={userType} onUserTypeChange={setUserType} onNavigate={handleNavigate} />;
   }
   if (currentPage === 'webmail') {
-    return (
-      <WebmailPage
-        onBack={() => setCurrentPage('home')}
-        userEmail={userEmail}
-        onLogout={handleLogout}
-        userType={userType}
-        onUserTypeChange={setUserType}
-        onNavigate={handleNavigate}
-      />
-    );
+    return <WebmailPage onBack={() => setCurrentPage('home')} userEmail={userEmail} onLogout={handleLogout} userType={userType} onUserTypeChange={setUserType} onNavigate={handleNavigate} />;
   }
   if (currentPage === 'candidato') {
-    return (
-      <CandidatePage
-        onBack={() => setCurrentPage('home')}
-        userEmail={userEmail}
-        onLogout={handleLogout}
-        userType={userType}
-        onUserTypeChange={setUserType}
-        onNavigate={handleNavigate}
-      />
-    );
+    return <CandidatePage onBack={() => setCurrentPage('home')} userEmail={userEmail} onLogout={handleLogout} userType={userType} onUserTypeChange={setUserType} onNavigate={handleNavigate} />;
   }
+
+  // Renderização principal do HelpDesk
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -229,7 +179,6 @@ function HelpTecApp() {
         </div>
       </header>
 
-      {/* Navigation Tabs */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex gap-8">
@@ -247,54 +196,49 @@ function HelpTecApp() {
               <List className="w-5 h-5" />
               <span className="font-medium">Meus Chamados</span>
               <span className="bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-                {tickets.length}
+                {/* Total reflete a união dos dois estados */}
+                {tickets.length + chamadosPendentes.length}
               </span>
             </button>
           </nav>
         </div>
       </div>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'new' ? (
           <TicketForm onSubmit={handleAddTicket} />
         ) : (
-          <TicketList tickets={tickets} onUpdateTicket={handleUpdateTicket} />
+          <TicketList 
+            // Unimos os rascunhos no topo, seguidos dos chamados oficiais
+            tickets={[...chamadosPendentes, ...tickets]} 
+            onUpdateTicket={handleUpdateTicket} 
+            onConfirmTicket={handleConfirmarPendente}
+            onDeletePending={handleDeletarPendente}
+          />
         )}
       </main>
     </div>
   );
 }
 
-// Fica dentro do BrowserRouter para poder usar o endereço atual como chave
-// de reset do ErrorBoundary.
-function AppRoutes() {
-  const location = useLocation();
-  return (
-    <ErrorBoundary resetKey={location.pathname}>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/chamados" element={<ChamadosPage />} />
-
-        <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-        <Route
-          path="/*"
-          element={
-            <PrivateRoute>
-              <HelpTecApp />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </ErrorBoundary>
-  );
-}
-
+// Ponto de entrada de rotas e contextos globais
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <AppRoutes />
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/chamados" element={<ChamadosPage />} />
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+          <Route
+            path="/*"
+            element={
+              <PrivateRoute>
+                <HelpTecApp />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );
