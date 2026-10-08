@@ -29,3 +29,6 @@ dist-ssr
 .env
 .env*
 !.env.example
+
+# ignora o service worker do firebase para proteger as chaves
+public/firebase-messaging-sw.js
