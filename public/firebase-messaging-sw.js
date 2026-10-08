@@ -9,12 +9,12 @@ importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
 const firebaseConfig = {
-  "apiKey": "\"AIzaSyAf5K-Qwyx7cePz9cH2CaI2-N6yNy4M1l0\",",
-  "authDomain": "\"teste-p2-front.firebaseapp.com\",",
-  "projectId": "\"teste-p2-front\",",
-  "storageBucket": "\"teste-p2-front.firebasestorage.app\",",
-  "messagingSenderId": "\"663885825318\",",
-  "appId": "1:663885825318:web:457079b4c8565da8baede7"
+   "apiKey": "\"AIzaSyCRYIAHyNOB7lXmiNNbfk4AugwxbYWzauY\",",
+  "authDomain": "\"help-tech-4888a.firebaseapp.com\",",
+  "projectId": "\"help-tech-4888a\",",
+  "storageBucket": "\"help-tech-4888a.firebasestorage.app\",",
+  "messagingSenderId": "\"766257049899\",",
+  "appId": "\"1:766257049899:web:434678b3acb938419b156e\","
 };
 
 firebase.initializeApp(firebaseConfig);
