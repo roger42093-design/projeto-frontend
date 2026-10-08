@@ -9,7 +9,7 @@ importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
 const firebaseConfig = {
-   "apiKey": "\"AIzaSyCRYIAHyNOB7lXmiNNbfk4AugwxbYWzauY\",",
+  "apiKey": "\"AIzaSyCRYIAHyNOB7lXmiNNbfk4AugwxbYWzauY\",",
   "authDomain": "\"help-tech-4888a.firebaseapp.com\",",
   "projectId": "\"help-tech-4888a\",",
   "storageBucket": "\"help-tech-4888a.firebasestorage.app\",",
