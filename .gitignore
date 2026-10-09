@@ -29,3 +29,6 @@ dist-ssr
 .env
 .env*
 !.env.example
+
+# Ignorar o service worker do Firebase para proteger as credenciais
+public/firebase-messaging-sw.js
