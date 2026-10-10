@@ -14,7 +14,30 @@ import {
 } from 'lucide-react';
 import { ChatBox } from '../../support/components/ChatBox';
 
-// Paleta Híbrida: Suporta Modo Claro (padrão) e Modo Escuro (dark:)
+// Funções Utilitárias de Formatação (Helpers)
+const formatarData = (dataIso) => {
+  if (!dataIso) return 'Data não disponível';
+  try {
+    const data = new Date(dataIso);
+    return data.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return dataIso;
+  }
+};
+
+const formatarId = (id) => {
+  if (!id) return '----';
+  const idStr = String(id);
+  if (idStr.length > 10) return idStr.substring(0, 6).toUpperCase();
+  return idStr.padStart(4, '0');
+};
+
 const COLOR_STYLES = {
   gray: {
     badgeBg: 'bg-gray-100 dark:bg-gray-700/50',
@@ -62,7 +85,6 @@ const STATUS_COLOR = {
   'Pendente': 'yellow', 
 };
 
-// Mapeamos a "prioridade" vinda do formulário para aplicar as cores de criticidade
 const PRIORITY_COLOR = {
   'Baixa': 'gray',
   'Média': 'blue',
@@ -164,8 +186,6 @@ export function TicketList({ tickets, onUpdateTicket, onConfirmTicket, onDeleteP
         <div className="p-6 space-y-4 bg-gray-50 dark:bg-[#1a1b26] transition-colors duration-200">
           {tickets.map((ticket) => {
             const statusColor = COLOR_STYLES[STATUS_COLOR[ticket.status]] || COLOR_STYLES.gray;
-            
-            // Lemos a 'prioridade' do ticket (que vem do seu formulário)
             const nivelMapped = PRIORITY_COLOR[ticket.prioridade] || 'gray';
             const nivelStyle = COLOR_STYLES[nivelMapped];
             const leftBarColor = nivelStyle.bar; 
@@ -174,25 +194,23 @@ export function TicketList({ tickets, onUpdateTicket, onConfirmTicket, onDeleteP
             return (
               <div
                 key={ticket.id_chamado || ticket.id_local}
-                // Mantemos o fundo idêntico para chamados normais e rascunhos, sem fundo amarelo inteiro!
                 className="relative rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#24283b] overflow-hidden hover:shadow-lg dark:hover:shadow-black/20 hover:-translate-y-0.5 transition-all duration-200"
               >
-                {/* A Barra Lateral é colorida de acordo com a Prioridade/Criticidade */}
                 <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${leftBarColor}`} />
 
                 <div className="pl-6 pr-5 py-5">
                   <div className="flex items-start justify-between mb-3 gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
+                        {/* AQUI: O ID formatado */}
                         <span className="text-sm font-semibold text-gray-400 dark:text-gray-500">
-                          {ticket.isPendente ? '#----' : `#${String(ticket.id_chamado ?? '').padStart(4, '0')}`}
+                          {ticket.isPendente ? '#----' : `#${formatarId(ticket.id_chamado)}`}
                         </span>
                         
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold dark:font-medium dark:border dark:border-white/5 ${statusColor.badgeBg} ${statusColor.badgeText}`}>
                           {ticket.status || 'Pendente'}
                         </span>
                         
-                        {/* Se for rascunho, mostra a flag de Alerta amarela */}
                         {ticket.isPendente && (
                           <span className="flex items-center gap-1 text-xs font-bold text-yellow-700 dark:text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 dark:border dark:border-yellow-500/20 px-2 py-0.5 rounded-full">
                             <AlertCircle className="w-3.5 h-3.5" />
@@ -214,7 +232,8 @@ export function TicketList({ tickets, onUpdateTicket, onConfirmTicket, onDeleteP
                   <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4 mt-4">
                     <div className="flex items-center gap-1.5">
                       <Clock className="w-4 h-4 text-gray-500" />
-                      <span>{ticket.data_abertura || 'Agora mesmo'}</span>
+                      {/* AQUI: A Data formatada */}
+                      <span>{formatarData(ticket.data_abertura)}</span>
                     </div>
                     {ticket.sala && (
                       <div className="flex items-center gap-1.5">
@@ -245,7 +264,6 @@ export function TicketList({ tickets, onUpdateTicket, onConfirmTicket, onDeleteP
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700/50">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500">Criticidade:</span>
-                      {/* O texto reflete a cor da Criticidade/Prioridade */}
                       <span className={`text-xs font-bold ${textColor}`}>
                         {ticket.prioridade || 'Não definida'}
                       </span>

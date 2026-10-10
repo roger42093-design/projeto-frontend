@@ -57,26 +57,23 @@ function HelpTecApp() {
   const setCurrentPage = (page) => navigate(PAGE_PATHS[page] ?? '/');
   const [activeTab, setActiveTab] = useState('new');
   
-  // 1. Estado Oficial (Backend API)
+  // Estado Oficial
   const [tickets, setTickets] = useState([]);
 
-  // 2. Estado Local (Rascunhos no Navegador) - Inicialização Lazy
+  // Estado Local (Rascunhos)
   const [chamadosPendentes, setChamadosPendentes] = useState(() => {
     const salvos = localStorage.getItem('@helptec-pendentes');
     return salvos ? JSON.parse(salvos) : [];
   });
 
-  // Sincroniza rascunhos com o disco local
   useEffect(() => {
     localStorage.setItem('@helptec-pendentes', JSON.stringify(chamadosPendentes));
   }, [chamadosPendentes]);
 
-  // Busca inicial dos chamados da API[cite: 8]
   useEffect(() => {
     const isMockModeAtivo = localStorage.getItem('@helptec-modo-dev') === 'true';
-    
     if (isMockModeAtivo) {
-      console.warn('🚧 Modo Dev Ativo: A ignorar a busca de chamados na API.');
+      console.warn('🚧 Modo Dev Ativo: Ignorando a busca de chamados na API.');
       return; 
     }
 
@@ -87,7 +84,6 @@ function HelpTecApp() {
   }, []);
 
   const handleLogout = () => {
-    // Limpa a bandeira de desenvolvimento ao sair para evitar conflitos futuros
     localStorage.removeItem('@helptec-modo-dev');
     logout();
     setCurrentPage('home');
@@ -103,7 +99,6 @@ function HelpTecApp() {
     else if (itemId === 'candidato') setCurrentPage('candidato');
   };
 
-  // Cria Rascunho Local
   const handleAddTicket = (ticket) => {
     const geradorId = window.crypto && crypto.randomUUID 
       ? crypto.randomUUID() 
@@ -122,10 +117,8 @@ function HelpTecApp() {
     setActiveTab('list');
   };
 
-  // Confirmação (Verifica o Modo Mock em Tempo Real)
   const handleConfirmarPendente = (chamadoLocal) => {
     const isMockModeAtivo = localStorage.getItem('@helptec-modo-dev') === 'true';
-
     const { id_local, isPendente, id_chamado, status, data_abertura, ...dadosParaAPI } = chamadoLocal;
 
     if (isMockModeAtivo) {
@@ -155,7 +148,7 @@ function HelpTecApp() {
           const mensagemServidor = err.response.data.message || err.response.data.erro || JSON.stringify(err.response.data);
           alert(`O servidor recusou o chamado.\nMotivo: ${mensagemServidor}`);
         } else if (err.request) {
-          alert('Não foi possível contactar o servidor. Verifique se o Back-end está a funcionar e as regras de CORS.');
+          alert('Não foi possível contactar o servidor. Verifique se o Back-end está rodando e as regras de CORS.');
         } else {
           alert(`Erro na aplicação: ${err.message}`);
         }
@@ -255,15 +248,33 @@ function HelpTecApp() {
   );
 }
 
+// ADICIONADO: Avaliação Dinâmica de Rotas.
+// Se estivermos em ambiente de teste, o React ignora a barreira de login.
 function AppRoutes() {
   const location = useLocation();
+  const isMockMode = localStorage.getItem('@helptec-modo-dev') === 'true';
+
   return (
     <ErrorBoundary resetKey={location.pathname}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/chamados" element={<ChamadosPage />} />
         <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-        <Route path="/*" element={<PrivateRoute><HelpTecApp /></PrivateRoute>} />
+        
+        <Route
+          path="/*"
+          element={
+            isMockMode ? (
+              // Modo Dev: Ignora o AuthContext e o PrivateRoute
+              <HelpTecApp />
+            ) : (
+              // Produção: Exige validação de sessão
+              <PrivateRoute>
+                <HelpTecApp />
+              </PrivateRoute>
+            )
+          }
+        />
       </Routes>
     </ErrorBoundary>
   );

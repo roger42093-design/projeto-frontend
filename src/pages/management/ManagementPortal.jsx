@@ -29,6 +29,14 @@ import {
 } from 'recharts';
 import { TopBar } from '../../components/TopBar';
 import { PageBackdrop } from '../../components/PageBackdrop';
+
+// IMPORTAÇÃO DOS FORMATADORES
+import { 
+  formatarDataCurta, 
+  formatarDataHora, 
+  obterIdSequencial 
+} from '../../utils/formatters';
+
 export function ManagementPortal({
   tickets,
   onUpdateTicket,
@@ -61,89 +69,40 @@ export function ManagementPortal({
 
   // Dados para gráficos
   const statusData = [
-    {
-      name: 'Aberto',
-      value: openTickets,
-      color: '#3B82F6',
-    },
-    {
-      name: 'Em Andamento',
-      value: inProgressTickets,
-      color: '#F59E0B',
-    },
-    {
-      name: 'Resolvido',
-      value: resolvedTickets,
-      color: '#10B981',
-    },
+    { name: 'Aberto', value: openTickets, color: '#3B82F6' },
+    { name: 'Em Andamento', value: inProgressTickets, color: '#F59E0B' },
+    { name: 'Resolvido', value: resolvedTickets, color: '#10B981' },
   ];
+  
   const priorityData = [
-    {
-      name: 'Baixa',
-      value: tickets.filter((t) => t.prioridade === 'Baixa').length,
-    },
-    {
-      name: 'Média',
-      value: tickets.filter((t) => t.prioridade === 'Média').length,
-    },
-    {
-      name: 'Alta',
-      value: tickets.filter((t) => t.prioridade === 'Alta').length,
-    },
-    {
-      name: 'Crítica',
-      value: tickets.filter((t) => t.prioridade === 'Crítica').length,
-    },
+    { name: 'Baixa', value: tickets.filter((t) => t.prioridade === 'Baixa').length },
+    { name: 'Média', value: tickets.filter((t) => t.prioridade === 'Média').length },
+    { name: 'Alta', value: tickets.filter((t) => t.prioridade === 'Alta').length },
+    { name: 'Crítica', value: tickets.filter((t) => t.prioridade === 'Crítica').length },
   ];
+  
   const dailyData = [
-    {
-      dia: 'Seg',
-      chamados: 12,
-      resolvidos: 8,
-    },
-    {
-      dia: 'Ter',
-      chamados: 15,
-      resolvidos: 11,
-    },
-    {
-      dia: 'Qua',
-      chamados: 18,
-      resolvidos: 14,
-    },
-    {
-      dia: 'Qui',
-      chamados: 14,
-      resolvidos: 10,
-    },
-    {
-      dia: 'Sex',
-      chamados: 16,
-      resolvidos: 13,
-    },
-    {
-      dia: 'Sáb',
-      chamados: 8,
-      resolvidos: 6,
-    },
-    {
-      dia: 'Dom',
-      chamados: 5,
-      resolvidos: 4,
-    },
+    { dia: 'Seg', chamados: 12, resolvidos: 8 },
+    { dia: 'Ter', chamados: 15, resolvidos: 11 },
+    { dia: 'Qua', chamados: 18, resolvidos: 14 },
+    { dia: 'Qui', chamados: 14, resolvidos: 10 },
+    { dia: 'Sex', chamados: 16, resolvidos: 13 },
+    { dia: 'Sáb', chamados: 8, resolvidos: 6 },
+    { dia: 'Dom', chamados: 5, resolvidos: 4 },
   ];
 
   // Filtrar tickets
   const filteredTickets = tickets.filter((ticket) => {
     const matchSearch =
-      (ticket.descricao ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (ticket.solicitante_nome ?? '').toLowerCase().includes(searchTerm.toLowerCase());
+      ticket.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket.solicitante_nome.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus =
       filterStatus === 'all' || ticket.status === filterStatus;
     const matchPriority =
       filterPriority === 'all' || ticket.prioridade === filterPriority;
     return matchSearch && matchStatus && matchPriority;
   });
+
   const handleEditTicket = (field, value) => {
     if (selectedTicket) {
       const updated = {
@@ -153,12 +112,14 @@ export function ManagementPortal({
       setSelectedTicket(updated);
     }
   };
+
   const handleSaveTicket = () => {
     if (selectedTicket) {
       onUpdateTicket(selectedTicket.id_chamado, selectedTicket);
       setEditMode(false);
     }
   };
+
   const getStatusColor = (status) => {
     const colors = {
       Aberto: 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-sm',
@@ -173,6 +134,7 @@ export function ManagementPortal({
     };
     return colors[status];
   };
+
   const getPriorityColor = (prioridade) => {
     const colors = {
       Baixa: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-sm',
@@ -182,6 +144,7 @@ export function ManagementPortal({
     };
     return colors[prioridade];
   };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-gray-50 via-white to-purple-50/40">
       <PageBackdrop />
@@ -241,10 +204,7 @@ export function ManagementPortal({
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <div className="flex items-center justify-between mb-2">
               <div className="relative flex h-12 w-12 items-center justify-center shrink-0">
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-full bg-indigo-400 opacity-40 blur-lg"
-                />
+                <span aria-hidden className="absolute inset-0 rounded-full bg-indigo-400 opacity-40 blur-lg" />
                 <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-blue-50 shadow-inner">
                   <TrendingUp className="w-6 h-6 text-indigo-600" />
                 </span>
@@ -258,10 +218,7 @@ export function ManagementPortal({
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <div className="flex items-center justify-between mb-2">
               <div className="relative flex h-12 w-12 items-center justify-center shrink-0">
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-full bg-amber-400 opacity-40 blur-lg"
-                />
+                <span aria-hidden className="absolute inset-0 rounded-full bg-amber-400 opacity-40 blur-lg" />
                 <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-yellow-50 shadow-inner">
                   <Clock className="w-6 h-6 text-amber-600" />
                 </span>
@@ -277,10 +234,7 @@ export function ManagementPortal({
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <div className="flex items-center justify-between mb-2">
               <div className="relative flex h-12 w-12 items-center justify-center shrink-0">
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-full bg-emerald-400 opacity-40 blur-lg"
-                />
+                <span aria-hidden className="absolute inset-0 rounded-full bg-emerald-400 opacity-40 blur-lg" />
                 <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-teal-50 shadow-inner">
                   <CheckCircle className="w-6 h-6 text-emerald-600" />
                 </span>
@@ -298,10 +252,7 @@ export function ManagementPortal({
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <div className="flex items-center justify-between mb-2">
               <div className="relative flex h-12 w-12 items-center justify-center shrink-0">
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-full bg-orange-400 opacity-40 blur-lg"
-                />
+                <span aria-hidden className="absolute inset-0 rounded-full bg-orange-400 opacity-40 blur-lg" />
                 <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-100 to-red-50 shadow-inner">
                   <AlertTriangle className="w-6 h-6 text-orange-600" />
                 </span>
@@ -317,7 +268,6 @@ export function ManagementPortal({
 
         {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Gráfico de Status */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Distribuição por Status
@@ -345,7 +295,6 @@ export function ManagementPortal({
             </ResponsiveContainer>
           </div>
 
-          {/* Gráfico de Prioridade */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Chamados por Prioridade
@@ -361,7 +310,6 @@ export function ManagementPortal({
             </ResponsiveContainer>
           </div>
 
-          {/* Gráfico de Tendência */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Tendência Semanal
@@ -373,20 +321,8 @@ export function ManagementPortal({
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="chamados"
-                  stroke="#3B82F6"
-                  name="Chamados Abertos"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="resolvidos"
-                  stroke="#10B981"
-                  name="Chamados Resolvidos"
-                  strokeWidth={2}
-                />
+                <Line type="monotone" dataKey="chamados" stroke="#3B82F6" name="Chamados Abertos" strokeWidth={2} />
+                <Line type="monotone" dataKey="resolvidos" stroke="#10B981" name="Chamados Resolvidos" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -475,8 +411,9 @@ export function ManagementPortal({
                     key={ticket.id_chamado}
                     className="hover:bg-gray-50 transition-colors"
                   >
+                    {/* APLICAÇÃO 1: Ordem Numérica na Tabela */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      #{String(ticket.id_chamado ?? '').padStart(4, '0')}
+                      {obterIdSequencial(ticket, tickets)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
                       {ticket.descricao}
@@ -498,8 +435,9 @@ export function ManagementPortal({
                         {ticket.prioridade}
                       </span>
                     </td>
+                    {/* APLICAÇÃO 2: Apenas Data Curta na Tabela */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ticket.data_abertura}
+                      {formatarDataCurta(ticket.data_abertura)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
@@ -525,8 +463,9 @@ export function ManagementPortal({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              {/* APLICAÇÃO 3: Título do Modal com Ordem Numérica */}
               <h3 className="text-xl font-semibold text-gray-900">
-                Chamado #{String(selectedTicket.id_chamado ?? '').padStart(4, '0')}
+                {obterIdSequencial(selectedTicket, tickets)}
               </h3>
               <div className="flex items-center gap-2">
                 {!editMode && (
@@ -710,16 +649,18 @@ export function ManagementPortal({
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="w-4 h-4 text-gray-400" />
                     <span className="text-gray-500">Abertura:</span>
+                    {/* APLICAÇÃO 4: Data e Hora no Histórico */}
                     <span className="text-gray-900">
-                      {selectedTicket.data_abertura}
+                      {formatarDataHora(selectedTicket.data_abertura)}
                     </span>
                   </div>
                   {selectedTicket.data_final && (
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span className="text-gray-500">Finalização:</span>
+                      {/* APLICAÇÃO 5: Data e Hora no Histórico */}
                       <span className="text-gray-900">
-                        {selectedTicket.data_final}
+                        {formatarDataHora(selectedTicket.data_final)}
                       </span>
                     </div>
                   )}
