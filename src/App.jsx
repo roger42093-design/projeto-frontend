@@ -10,6 +10,10 @@ import RegisterFormComponent from './pages/cadastro/Cadastro';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import ChamadosPage from './pages/chamados/ChamadosPage';
 import ApproverPage from './pages/aprovador/ApproverPage';
+import CandidatePage from './pages/candidato/CandidatePage';
+import MeusChamadosPage from './pages/chamados/MeusChamadosPage';
+import SupportPage from './pages/suporte/SupportPage';
+import WebmailPage from './pages/webmail/WebmailPage';
 
 // Componente para capturar o token OAuth2, autenticar no contexto e redirecionar
 const OAuth2RedirectHandler = () => {
@@ -121,6 +125,38 @@ function App() {
             element={
               <PrivateRoute>
                 <ApproverPage />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/candidato" 
+            element={
+              <PrivateRoute>
+                <CandidatePage />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/meus-chamados" 
+            element={
+              <PrivateRoute>
+                <MeusChamadosPage />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/suporte" 
+            element={
+              <PrivateRoute>
+                <SupportPage />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/webmail" 
+            element={
+              <PrivateRoute>
+                <WebmailPage />
               </PrivateRoute>
             } 
           />
