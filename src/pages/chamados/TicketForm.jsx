@@ -113,59 +113,59 @@ const priorityOptions = [
 
 const COLOR_STYLES = {
   gray: {
-    iconBg: 'bg-gray-200',
-    icon: 'text-gray-600',
+    iconBg: 'bg-gray-200 dark:bg-gray-700',
+    icon: 'text-gray-600 dark:text-gray-300',
     selectedBorder: 'border-gray-500',
-    selectedBg: 'bg-gray-100',
+    selectedBg: 'bg-gray-100 dark:bg-gray-800/60',
     selectedIconBg: 'bg-gray-600',
     selectedIcon: 'text-white',
     badge: 'bg-gray-600',
-    ring: 'ring-gray-200',
-    text: 'text-gray-700',
+    ring: 'ring-gray-200 dark:ring-gray-700',
+    text: 'text-gray-700 dark:text-gray-300',
   },
   purple: {
-    iconBg: 'bg-purple-100',
-    icon: 'text-purple-700',
+    iconBg: 'bg-purple-100 dark:bg-purple-900/40',
+    icon: 'text-purple-700 dark:text-purple-300',
     selectedBorder: 'border-purple-600',
-    selectedBg: 'bg-purple-50',
+    selectedBg: 'bg-purple-50 dark:bg-purple-900/20',
     selectedIconBg: 'bg-purple-700',
     selectedIcon: 'text-white',
     badge: 'bg-purple-700',
-    ring: 'ring-purple-200',
-    text: 'text-purple-700',
+    ring: 'ring-purple-200 dark:ring-purple-900/40',
+    text: 'text-purple-700 dark:text-purple-300',
   },
   blue: {
-    iconBg: 'bg-blue-100',
-    icon: 'text-blue-700',
+    iconBg: 'bg-blue-100 dark:bg-blue-900/40',
+    icon: 'text-blue-700 dark:text-blue-300',
     selectedBorder: 'border-blue-600',
-    selectedBg: 'bg-blue-50',
+    selectedBg: 'bg-blue-50 dark:bg-blue-900/20',
     selectedIconBg: 'bg-blue-700',
     selectedIcon: 'text-white',
     badge: 'bg-blue-700',
-    ring: 'ring-blue-200',
-    text: 'text-blue-700',
+    ring: 'ring-blue-200 dark:ring-blue-900/40',
+    text: 'text-blue-700 dark:text-blue-300',
   },
   yellow: {
-    iconBg: 'bg-yellow-100',
-    icon: 'text-yellow-700',
+    iconBg: 'bg-yellow-100 dark:bg-yellow-900/40',
+    icon: 'text-yellow-700 dark:text-yellow-300',
     selectedBorder: 'border-yellow-500',
-    selectedBg: 'bg-yellow-50',
+    selectedBg: 'bg-yellow-50 dark:bg-yellow-900/20',
     selectedIconBg: 'bg-yellow-500',
     selectedIcon: 'text-white',
     badge: 'bg-yellow-500',
-    ring: 'ring-yellow-200',
-    text: 'text-yellow-700',
+    ring: 'ring-yellow-200 dark:ring-yellow-900/40',
+    text: 'text-yellow-700 dark:text-yellow-300',
   },
   red: {
-    iconBg: 'bg-red-100',
-    icon: 'text-red-700',
+    iconBg: 'bg-red-100 dark:bg-red-900/40',
+    icon: 'text-red-700 dark:text-red-300',
     selectedBorder: 'border-red-600',
-    selectedBg: 'bg-red-50',
+    selectedBg: 'bg-red-50 dark:bg-red-900/20',
     selectedIconBg: 'bg-red-700',
     selectedIcon: 'text-white',
     badge: 'bg-red-700',
-    ring: 'ring-red-200',
-    text: 'text-red-700',
+    ring: 'ring-red-200 dark:ring-red-900/40',
+    text: 'text-red-700 dark:text-red-300',
   },
 };
 export function TicketForm({ onSubmit }) {
@@ -225,7 +225,7 @@ export function TicketForm({ onSubmit }) {
   return (
     <div className="max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
       {/* Formulário principal */}
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden dark:border-gray-800 dark:bg-[#16161e]">
         {/* Banner de destaque — paleta FIEC: cinza, roxo, azul, amarelo, vermelho */}
         <div
           className="relative px-6 py-7 overflow-hidden"
@@ -276,10 +276,10 @@ export function TicketForm({ onSubmit }) {
           {/* Localização e Patrimônio */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-purple-700" />
+              <div className="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-purple-700 dark:text-purple-300" />
               </div>
-              <h3 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm uppercase tracking-wide">
                 Localização e Patrimônio
               </h3>
             </div>
@@ -287,7 +287,7 @@ export function TicketForm({ onSubmit }) {
               <div>
                 <label
                   htmlFor="sala"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Sala *
                 </label>
@@ -302,14 +302,14 @@ export function TicketForm({ onSubmit }) {
                       sala: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-600 transition-shadow"
+                  className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-[#1a1b26] dark:text-gray-100 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-600 transition-shadow"
                   placeholder="Ex: Sala 201"
                 />
               </div>
               <div>
                 <label
                   htmlFor="cod_patrimonio"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
                   Código Patrimônio / Número da Máquina *
                 </label>
@@ -324,7 +324,7 @@ export function TicketForm({ onSubmit }) {
                       cod_patrimonio: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-600 transition-shadow"
+                  className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-[#1a1b26] dark:text-gray-100 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-600 transition-shadow"
                   placeholder="Ex: PAT-001234 / Máquina 05"
                 />
               </div>
@@ -334,10 +334,10 @@ export function TicketForm({ onSubmit }) {
           {/* Tipo de Equipamento */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Tag className="w-4 h-4 text-blue-700" />
+              <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                <Tag className="w-4 h-4 text-blue-700 dark:text-blue-300" />
               </div>
-              <h3 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm uppercase tracking-wide">
                 Tipo de Equipamento *
               </h3>
             </div>
@@ -351,7 +351,7 @@ export function TicketForm({ onSubmit }) {
                     key={equipment.id}
                     type="button"
                     onClick={() => handleEquipmentSelect(equipment.name)}
-                    className={`relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${isSelected ? `${styles.selectedBorder} ${styles.selectedBg} ring-4 ${styles.ring} shadow-md` : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                    className={`relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${isSelected ? `${styles.selectedBorder} ${styles.selectedBg} ring-4 ${styles.ring} shadow-md` : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-[#1a1b26] dark:hover:border-gray-600'}`}
                   >
                     {isSelected && (
                       <span
@@ -368,7 +368,7 @@ export function TicketForm({ onSubmit }) {
                       />
                     </div>
                     <span
-                      className={`text-xs font-semibold text-center ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}
+                      className={`text-xs font-semibold text-center ${isSelected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}
                     >
                       {equipment.name}
                     </span>
@@ -381,10 +381,10 @@ export function TicketForm({ onSubmit }) {
           {/* Prioridade */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-yellow-100 flex items-center justify-center">
-                <Gauge className="w-4 h-4 text-yellow-700" />
+              <div className="w-7 h-7 rounded-lg bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center">
+                <Gauge className="w-4 h-4 text-yellow-700 dark:text-yellow-300" />
               </div>
-              <h3 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm uppercase tracking-wide">
                 Prioridade
               </h3>
             </div>
@@ -402,14 +402,14 @@ export function TicketForm({ onSubmit }) {
                         prioridade: priority.value,
                       })
                     }
-                    className={`text-left p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${isSelected ? `${styles.selectedBorder} ${styles.selectedBg} ring-2 ${styles.ring}` : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                    className={`text-left p-3 rounded-xl border-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${isSelected ? `${styles.selectedBorder} ${styles.selectedBg} ring-2 ${styles.ring}` : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-[#1a1b26] dark:hover:border-gray-600'}`}
                   >
                     <span
-                      className={`text-sm font-semibold ${isSelected ? styles.text : 'text-gray-800'}`}
+                      className={`text-sm font-semibold ${isSelected ? styles.text : 'text-gray-800 dark:text-gray-200'}`}
                     >
                       {priority.value}
                     </span>
-                    <p className="text-[11px] text-gray-500 mt-0.5 leading-tight">
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">
                       {priority.description}
                     </p>
                   </button>
@@ -422,7 +422,7 @@ export function TicketForm({ onSubmit }) {
           <div>
             <label
               htmlFor="descricao"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Descrição do Problema *
             </label>
@@ -437,13 +437,13 @@ export function TicketForm({ onSubmit }) {
                   descricao: e.target.value,
                 })
               }
-              className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-600 transition-shadow resize-none"
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-[#1a1b26] dark:text-gray-100 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-600 transition-shadow resize-none"
               placeholder="Descreva detalhadamente o problema encontrado..."
             />
           </div>
 
           {/* Submit Button */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
             <button
               type="submit"
               className="group flex items-center gap-2 px-7 py-3 text-white rounded-xl font-semibold shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
@@ -462,37 +462,37 @@ export function TicketForm({ onSubmit }) {
       {/* Barra lateral com resumo e dicas */}
       <div className="space-y-4 lg:sticky lg:top-6">
         {/* Resumo do chamado */}
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-5">
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-5 dark:border-gray-800 dark:bg-[#16161e]">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-gray-200 flex items-center justify-center">
-              <ClipboardList className="w-4 h-4 text-gray-700" />
+            <div className="w-7 h-7 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <ClipboardList className="w-4 h-4 text-gray-700 dark:text-gray-300" />
             </div>
-            <h3 className="font-semibold text-gray-900 text-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
               Resumo do chamado
             </h3>
           </div>
 
           <dl className="space-y-3 text-sm">
             <div className="flex items-center justify-between gap-2">
-              <dt className="text-gray-500">Sala</dt>
-              <dd className="font-medium text-gray-800 truncate max-w-[140px]">
+              <dt className="text-gray-500 dark:text-gray-400">Sala</dt>
+              <dd className="font-medium text-gray-800 dark:text-gray-200 truncate max-w-[140px]">
                 {formData.sala || '—'}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <dt className="text-gray-500">Patrimônio</dt>
-              <dd className="font-medium text-gray-800 truncate max-w-[140px]">
+              <dt className="text-gray-500 dark:text-gray-400">Patrimônio</dt>
+              <dd className="font-medium text-gray-800 dark:text-gray-200 truncate max-w-[140px]">
                 {formData.cod_patrimonio || '—'}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <dt className="text-gray-500">Equipamento</dt>
-              <dd className="font-medium text-gray-800 truncate max-w-[140px]">
+              <dt className="text-gray-500 dark:text-gray-400">Equipamento</dt>
+              <dd className="font-medium text-gray-800 dark:text-gray-200 truncate max-w-[140px]">
                 {selectedEquipment || '—'}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <dt className="text-gray-500">Prioridade</dt>
+              <dt className="text-gray-500 dark:text-gray-400">Prioridade</dt>
               <dd>
                 <span
                   className={`text-xs font-semibold px-2 py-0.5 rounded-full ${priorityStyles.selectedBg} ${priorityStyles.text}`}
@@ -505,16 +505,16 @@ export function TicketForm({ onSubmit }) {
         </div>
 
         {/* Dicas rápidas */}
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-5">
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-5 dark:border-gray-800 dark:bg-[#16161e]">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-yellow-100 flex items-center justify-center">
-              <Lightbulb className="w-4 h-4 text-yellow-700" />
+            <div className="w-7 h-7 rounded-lg bg-yellow-100 dark:bg-yellow-900/40 flex items-center justify-center">
+              <Lightbulb className="w-4 h-4 text-yellow-700 dark:text-yellow-300" />
             </div>
-            <h3 className="font-semibold text-gray-900 text-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
               Dicas rápidas
             </h3>
           </div>
-          <ul className="space-y-2.5 text-sm text-gray-600">
+          <ul className="space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
             <li className="flex gap-2">
               <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-purple-600 shrink-0" />
               O código de patrimônio geralmente está numa etiqueta no
