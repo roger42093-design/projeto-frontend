@@ -5,6 +5,7 @@ import bgImage from '../../assets/Imagem_Login.jpg';
 
 import { FormField } from '../../shared/components/FormField';
 import { authService } from '../../shared/services/authService';
+import { API_URL } from '../../utils/api';
 
 export default function RegisterFormComponent(props) {
   const [formData, setFormData] = useState({
@@ -19,7 +20,8 @@ export default function RegisterFormComponent(props) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    window.location = "http://localhost:8080";  // BACK URL
+    // Mesmo endereço do back usado pelo api.js (definido no .env); o login do Google começa nele
+    window.location = API_URL;  // BACK URL
   },[])
 
   return(

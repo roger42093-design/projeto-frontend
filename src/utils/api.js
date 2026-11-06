@@ -1,8 +1,19 @@
 import axios from 'axios';
 
+// Endereço do back-end, escolhido pelo comando usado (ver .env):
+//   npm run dev / npm run dev:local  -> VITE_API_URL_LOCAL
+//   npm run dev:remoto               -> VITE_API_URL_REMOTO
+//   npm run build (Docker/CI)        -> VITE_API_URL
+const URL_POR_MODO = {
+  'dev-local': import.meta.env.VITE_API_URL_LOCAL,
+  'dev-remoto': import.meta.env.VITE_API_URL_REMOTO,
+};
+
+export const API_URL =
+  URL_POR_MODO[import.meta.env.MODE] || import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
 const api = axios.create({
-  // Endereço do back-end. Defina VITE_API_URL no .env (ex.: http://localhost:8080)
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
+  baseURL: API_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
