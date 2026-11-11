@@ -1,12 +1,13 @@
 // src/App.jsx
 import React, { useState, useEffect, useContext } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './contexts/AuthContext';
 import { PrivateRoute } from './shared/components/PrivateRoute';
 
 import './App.css';
 import splashImage from './assets/print certo.jpg'; 
-import RegisterFormComponent from './pages/cadastro/Cadastro';
+import IrParaGoogle from './pages/login/IrParaGoogle';
+import { abaJaPassouPeloGoogle, irParaLoginGoogle, marcarAbaComLogin } from './utils/loginGoogle';
 import ApproverPage from './pages/aprovador/ApproverPage';
 import CandidatePage from './pages/candidato/CandidatePage';
 import MeusChamadosPage from './pages/chamados/MeusChamadosPage';
@@ -15,29 +16,37 @@ import WebmailPage from './pages/webmail/WebmailPage';
 import ManagerPage from './pages/gestor/ManagerPage';
 import { PERFIL, rotaDoPerfil } from './utils/perfis';
 
-// Componente para capturar o token OAuth2, autenticar no contexto e redirecionar
+// O back volta para cá depois do login com Google: /oauth2/redirect?token=...
+// Guarda o token e recarrega na raiz: com o token salvo aparece a tela de abertura
+// e depois a área da conta.
 const OAuth2RedirectHandler = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const token = searchParams.get('token');
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    if (!token) return;
+    localStorage.setItem('@HelpTec:token', token);
+    marcarAbaComLogin(); // os próximos F5 desta aba não voltam para o Google
+    // replace: o token sai do endereço e do histórico do navegador
+    window.location.replace('/');
+  }, [token]);
 
-    if (token) {
-      // Chama o login do AuthContext (salva em '@HelpTec:token' e atualiza o estado)
-      login(token);
-      // Vai para "/", que leva cada conta para a sua área (ver IrParaMinhaArea)
-      navigate('/', { replace: true });
-    } else {
-      // Caso não venha token na URL, volta para a tela de cadastro/login
-      navigate('/cadastro', { replace: true });
-    }
-  }, [searchParams, navigate, login]);
-
+  if (!token) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 min-h-screen bg-[#050505] text-gray-200 px-4 text-center">
+        <p className="text-sm">Não foi possível entrar com o Google.</p>
+        <button
+          onClick={irParaLoginGoogle}
+          className="px-5 py-2.5 rounded-lg bg-linear-to-r from-fuchsia-600 to-purple-700 text-white text-sm font-semibold"
+        >
+          Entrar com o Google
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="text-white flex items-center justify-center min-h-screen bg-[#050505]">
-      <p>Processando autenticação...</p>
+      <p>Entrando no HelpTec...</p>
     </div>
   );
 };
@@ -66,11 +75,38 @@ const Dashboard = () => {
   );
 };
 
+// Ordem ao abrir o site numa aba nova:
+//   1. "Escolha uma conta" do Google (mesmo que já exista um login salvo)
+//   2. volta em /oauth2/redirect, guarda o token e marca a aba
+//   3. tela de abertura e depois a área da conta
+// F5 na mesma aba: a aba já está marcada, então vai direto para a tela de abertura.
+function temTokenSalvo() {
+  try {
+    return Boolean(localStorage.getItem('@HelpTec:token'));
+  } catch {
+    return false;
+  }
+}
+
+function estaVoltandoDoGoogle() {
+  return window.location.pathname.startsWith('/oauth2/');
+}
+
+function precisaPassarPeloGoogle() {
+  return !abaJaPassouPeloGoogle() && !estaVoltandoDoGoogle();
+}
+
 function App() {
-  const [isSplashVisible, setIsSplashVisible] = useState(true);
+  const [irParaGoogle] = useState(precisaPassarPeloGoogle);
+  const [isSplashVisible, setIsSplashVisible] = useState(() => !precisaPassarPeloGoogle() && temTokenSalvo());
+
+  useEffect(() => {
+    if (irParaGoogle) irParaLoginGoogle();
+  }, [irParaGoogle]);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    if (!isSplashVisible) return undefined;
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -83,7 +119,17 @@ function App() {
     }, 40); 
     
     return () => clearInterval(interval);
+    // só na primeira abertura da página
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (irParaGoogle) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#050505] text-gray-300 text-sm">
+        Abrindo o login do Google...
+      </div>
+    );
+  }
 
   if (isSplashVisible) {
     return (
@@ -104,7 +150,10 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/cadastro" element={<RegisterFormComponent />} />
+          {/* Sem tela de login: /login vai direto para o Google (pelo back).
+              /cadastro (antigo) também leva para o Google. */}
+          <Route path="/login" element={<IrParaGoogle />} />
+          <Route path="/cadastro" element={<Navigate to="/login" replace />} />
           
           {/* Rota OAuth2 adicionada (mantido /oauth2/ederect conforme solicitado, e /oauth2/redirect por segurança caso seja erro de digitação no backend) */}
           <Route path="/oauth2/ederect" element={<OAuth2RedirectHandler />} />

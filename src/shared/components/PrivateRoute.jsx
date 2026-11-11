@@ -4,7 +4,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { rotaDoPerfil } from '../../utils/perfis';
 
 // Protege uma página:
-//  - sem login: vai para o login (/cadastro)
+//  - sem login: vai para o login com Google (/login)
 //  - com "perfis": só esses perfis entram; os outros voltam para a própria área
 //  - sem "perfis": qualquer conta logada entra (ex.: webmail, candidatos)
 export const PrivateRoute = ({ children, perfis }) => {
@@ -12,7 +12,7 @@ export const PrivateRoute = ({ children, perfis }) => {
     useContext(AuthContext);
 
   if (!isAuthenticated) {
-    return <Navigate to="/cadastro" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (carregandoUsuario) {

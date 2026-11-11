@@ -12,17 +12,17 @@
 // "invalid api key") em produção.
 //
 // A solução: manter as variáveis no seu .env normalmente (do mesmo jeito
-// que já são usadas em src/firebase/config.js, via import.meta.env), e
+// que já são usadas em src/firebase.js, via import.meta.env), e
 // deixar que ESTE script — que roda em Node, não no navegador — leia
 // essas mesmas variáveis e "grave" os valores literais dentro do arquivo
 // public/firebase-messaging-sw.js antes do dev/build.
 //
 // Uso manual:
-//   node scripts/generate-firebase-sw.js
+//   node scripts/generate-firebase-sw.js --mode dev-local
 //
 // Uso automático (já configurado no package.json):
-//   npm run dev    -> roda "predev" -> este script -> depois "vite"
-//   npm run build  -> roda "prebuild" -> este script -> depois "vite build"
+//   npm run dev    -> este script -> depois "vite"
+//   npm run build  -> este script -> depois "vite build"
 
 import { loadEnv } from 'vite';
 import { writeFileSync, mkdirSync } from 'fs';
@@ -32,7 +32,13 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, '..');
 
-const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+// Modo do Vite: o mesmo passado em "vite --mode X" (ver package.json).
+// Ex.: --mode dev-local le .env + .env.dev-local
+const modeArgIndex = process.argv.indexOf('--mode');
+const mode =
+  modeArgIndex !== -1 && process.argv[modeArgIndex + 1]
+    ? process.argv[modeArgIndex + 1]
+    : process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const env = loadEnv(mode, rootDir, 'VITE_');
 
 const REQUIRED_KEYS = [
